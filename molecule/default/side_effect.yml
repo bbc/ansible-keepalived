@@ -7,7 +7,7 @@
   tasks:
     - name: Define vrrp nic
       set_fact:
-        vrrp_nic: "{{ ((ansible_interfaces | reject('equalto','lo')) | difference([ansible_default_ipv4.interface]))[0] | string }}"
+        vrrp_nic: "{{ ((ansible_facts['interfaces'] | reject('equalto','lo')) | difference([ansible_facts['default_ipv4'].interface]))[0] | string }}"
 
     - name: Disable current master node
       command: ip link set dev {{ vrrp_nic }} down
@@ -24,7 +24,7 @@
 
     - name: Compare all the hosts IPs with the vrrp_ip
       set_fact:
-        is_there_master_ip_somewhere: "{{ ansible_play_hosts_all | map('extract', hostvars, 'ansible_all_ipv4_addresses') | flatten | intersect([vrrp_ip]) }}"
+        is_there_master_ip_somewhere: "{{ ansible_play_hosts_all | map('extract', hostvars, ansible_facts['all_ipv4_addresses']) | flatten | intersect([vrrp_ip]) }}"
       run_once: True
 
     - name: Fail if no one has the vrrp_ip

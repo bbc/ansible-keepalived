@@ -15,15 +15,15 @@
         - inetutils-ping
         - iproute2
       state: present
-    when: ansible_os_family == "Debian"
+    when: ansible_facts['os_family'] == "Debian"
 
-  - name: Yum install iproute to fix undefined ansible_default_ipv4.address
+  - name: Yum install iproute to fix undefined ansible_facts['default_ipv4'].address
     yum:
       name: iproute
       state: present
     when:
-      - ansible_distribution == "CentOS"
-      - ansible_distribution_major_version == "7"
+      - ansible_facts['distribution'] == "CentOS"
+      - ansible_facts['distribution_major_version'] == "7"
 
   - name: Add a container to a network, leaving existing containers connected
     delegate_to: localhost
@@ -39,11 +39,11 @@
 
   - name: Show ansible_interfaces
     debug:
-      var: ansible_interfaces
+      var: ansible_facts['interfaces']
 
   - name: Define vrrp nic
     set_fact:
-      vrrp_nic: "{{ ((ansible_interfaces | reject('equalto','lo')) | difference([ansible_default_ipv4.interface]))[0] | string }}"
+      vrrp_nic: "{{ ((ansible_facts['interfaces'] | reject('equalto','lo')) | difference([ansible_facts['default_ipv4'].interface]))[0] | string }}"
 
   - name: Include keepalived vars
     include_vars: "../../tests/keepalived_haproxy_combined_example.yml"
